@@ -6,3 +6,6 @@
 - GitHub Actions builds with OpenNext on every push and deploys `main` to Workers (needs `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` secrets).
 - Plans updated: PDF rendering, diffing and COR PDF generation move to the browser (no `sharp` on Workers); Vercel Blob → R2; Neon via Hyperdrive with the Prisma driver adapter.
 - Test: `npm run dev` works as before; `npx opennextjs-cloudflare build` produces `.open-next/worker.js`.
+
+## 2026-09-05 — First Cloudflare deploy
+- First Cloudflare deploy
