@@ -4,7 +4,7 @@ Hand this file to Claude Fable at the start of each session. Read it fully befor
 
 ## Context
 
-You are building **SiteLayer**, construction management software whose core idea is: *every dollar of change traces back to a cloud on a drawing.* A working beta-candidate repo already exists (`sitelayer.zip`: Next.js 14, TypeScript, Tailwind, in-browser state, sample sheets, revision-diff tool, change order requests, RFIs). Your job this week is to turn it into a multi-user app that a real project team can use.
+You are building **SiteLayer**, construction management software whose core idea is: *every dollar of change traces back to a cloud on a drawing.* A working beta-candidate repo already exists (`sitelayer.zip`: Next.js 15, TypeScript, Tailwind, in-browser state, sample sheets, revision-diff tool, change order requests, RFIs). Your job this week is to turn it into a multi-user app that a real project team can use.
 
 Product owner: Tom (Project Manager, Bird Construction). He will test each day's build on a phone and a laptop.
 
@@ -12,10 +12,10 @@ Product owner: Tom (Project Manager, Bird Construction). He will test each day's
 
 | Area | Decision |
 |------|----------|
-| Framework | Next.js 14 App Router, TypeScript strict, Tailwind |
-| Hosting | Vercel (production = `main`, previews = PRs) |
-| Database | Postgres on Neon, accessed with Prisma |
-| Files | Vercel Blob for uploaded PDFs and rendered page images |
+| Framework | Next.js 15 App Router (React 19), TypeScript strict, Tailwind |
+| Hosting | Cloudflare Workers via OpenNext; GitHub Actions deploys `main` (see `docs/CLOUDFLARE.md`) |
+| Database | Postgres on Neon through Cloudflare Hyperdrive, accessed with Prisma driver adapter (`@prisma/adapter-pg`) |
+| Files | Cloudflare R2 for uploaded PDFs and rendered page images |
 | Auth | Auth.js with email magic link (Resend for email) |
 | Real-time | Not this week. Polling every 10 s on the review page is fine |
 | Currency | CAD, stored as integer cents |
@@ -65,13 +65,13 @@ Each day ends with: `npm run typecheck && npm run build` green, merged to `main`
 - Test: a consultant account cannot see the price form.
 
 ### Day 3 — PDF upload and rendering
-- Upload a multi-page PDF to Vercel Blob. Serverless route renders each page to PNG with `pdfjs-dist` at 150 dpi (cap 4000 px on the long edge), stores width/height, creates a `Revision` per page under the matching `Drawing` (match by sheet number read from the title block text with `pdfjs` text extraction; fall back to a review screen where Tom assigns numbers manually).
+- Upload a multi-page PDF to R2. Render each page to PNG **in the browser** with `pdfjs-dist` at 150 dpi (cap 4000 px on the long edge) and upload the PNGs to R2 through a route handler; store width/height, creates a `Revision` per page under the matching `Drawing` (match by sheet number read from the title block text with `pdfjs` text extraction; fall back to a review screen where Tom assigns numbers manually).
 - Progress UI for the upload; re-run rendering if a page fails.
 - Test: a 40-page IFC set uploads and every page opens in the review tool in under 5 minutes.
 
 ### Day 4 — Review tool on real sheets
 - Make the review tool work with variable page sizes (use `width`/`height` from the revision, not the 1400 × 900 constant).
-- Move **Find differences** to a server route: fetch both PNGs, diff with `sharp` (threshold, downsample to a 20 px grid, flood-fill clusters), return suggestion boxes. Cache results per revision pair.
+- Keep **Find differences** in the browser (Workers have a 128 MB memory limit and no `sharp`): fetch both PNGs, diff on canvas (threshold, downsample to a 20 px grid, flood-fill clusters), return suggestion boxes. Cache results per revision pair.
 - Alignment: before diffing, estimate a translation offset by cross-correlating the two title blocks; apply it. This removes most false positives from re-plotted sheets.
 - Markup layers: colour by author role; consultant markups not editable by contractor.
 - Test: Tom runs diff on a real Rev A → Rev B pair and the top five suggestions are genuine changes.
@@ -79,7 +79,7 @@ Each day ends with: `npm run typecheck && npm run build` green, merged to `main`
 ### Day 5 — Change orders
 - Rate library per project (trade → labour cents/hr, common material items) with CSV import; price form pulls defaults from it.
 - Subcontractor quote link: `/quote/[token]` shows the clouded sheet extract and a price form; no login required; token expires in 14 days; submission writes the sub's price onto the change item and audits it.
-- COR PDF export (`@react-pdf/renderer`): cover, line items, totals, then one page per cloud with a cropped image of the sheet around the cloud (crop from the PNG with `sharp`, cloud drawn on top).
+- COR PDF export (`@react-pdf/renderer` in the browser): cover, line items, totals, then one page per cloud with a cropped image of the sheet around the cloud (crop on canvas client-side, cloud drawn on top).
 - Status flow: draft → submitted → approved/rejected, with who/when.
 - Test: build a COR with three clouds, get one sub price via the link, download the PDF, and the drawing backup pages are readable.
 
@@ -93,7 +93,7 @@ Each day ends with: `npm run typecheck && npm run build` green, merged to `main`
 - Row-level access tests (Vitest): each server action refused for a user outside the project and for the wrong role.
 - Rate limit magic-link requests; validate all inputs with `zod`.
 - Lighthouse on the review page ≥ 80 performance on mobile; image `loading="lazy"` on lists.
-- Backup: document Neon point-in-time restore; run one restore into a branch and confirm data.
+- Backup: document Neon point-in-time restore and R2 bucket versioning; run one restore into a branch and confirm data.
 - Update `README.md`, `docs/ARCHITECTURE.md`, write `docs/BETA_TESTER_GUIDE.md` (one page, five tasks a tester should try).
 - Test: Tom follows the tester guide start to finish without asking a question.
 
@@ -114,7 +114,7 @@ DIRECT_URL=              # Neon direct connection (migrations)
 AUTH_SECRET=
 AUTH_RESEND_KEY=
 AUTH_EMAIL_FROM=
-BLOB_READ_WRITE_TOKEN=
+
 NEXT_PUBLIC_APP_URL=
 ```
 

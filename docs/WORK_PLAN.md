@@ -11,10 +11,10 @@ Cadence: one-week sprints, Monday planning, Friday demo. Each phase ends with a 
 |---|-------------|-----|
 | 0.1 | Competitor teardown and innovation list (`docs/COMPETITOR_INNOVATIONS.md`) | 4 Sept |
 | 0.2 | Beta scope frozen: drawing review, change capture, change order requests (COR), RFIs (requests for information) | 8 Sept |
-| 0.3 | Walking skeleton deployed to Vercel (this repository) | 8 Sept |
+| 0.3 | Walking skeleton deployed to Cloudflare Workers (this repository) | 8 Sept |
 | 0.4 | Beta tester shortlist: 3 project teams, 2 subcontractors, 1 consultant | 11 Sept |
 
-Exit: Tom signs off scope and can open the Vercel URL on a phone and cloud a change.
+Exit: Tom signs off scope and can open the workers.dev URL on a phone and cloud a change.
 
 ## Phase 1 — Foundation (14 Sept – 2 Oct 2026)
 
@@ -22,7 +22,7 @@ Exit: Tom signs off scope and can open the Vercel URL on a phone and cloud a cha
 |---|-------------|-----|
 | 1.1 | Postgres schema (projects, drawings, revisions, markups, change items, CORs, RFIs, users) with Prisma migrations | 18 Sept |
 | 1.2 | Authentication (magic-link email via Auth.js), organisations, project membership, roles: owner / contractor / subcontractor / consultant / viewer | 25 Sept |
-| 1.3 | File storage for sheets (Vercel Blob or S3-compatible), PDF → per-page image render pipeline (pdf.js in a serverless function) | 2 Oct |
+| 1.3 | File storage for sheets (Cloudflare R2), PDF → per-page image rendering with pdf.js in the browser, PNGs uploaded to R2 | 2 Oct |
 | 1.4 | Audit log on every write (who, what, when, from which revision) | 2 Oct |
 
 Exit: two users on two devices see the same markups within 2 seconds; a 200-sheet PDF set uploads and pages render in under 5 minutes.

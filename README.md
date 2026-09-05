@@ -2,7 +2,7 @@
 
 Construction management software with one opinion: **every dollar of change should trace back to a cloud on a drawing.**
 
-This repository is the beta-candidate codebase. It runs as a static Next.js app (no database yet — see `docs/ARCHITECTURE.md` for the persistence plan), so it deploys to Vercel with zero configuration.
+This repository is the beta-candidate codebase. It runs as a static Next.js app (no database yet — see `docs/ARCHITECTURE.md` for the persistence plan), and deploys to Cloudflare Workers through the OpenNext adapter (see `docs/CLOUDFLARE.md`).
 
 ## What works today
 
@@ -23,14 +23,14 @@ npm run dev      # http://localhost:3000
 npm run build    # production build (also run in CI)
 ```
 
-## Put it on GitHub and Vercel
+## Put it on GitHub and Cloudflare
 
 ```bash
 git init && git add -A && git commit -m "SiteLayer beta candidate"
 gh repo create sitelayer --private --source=. --push     # or create the repo in the GitHub UI and push
 ```
 
-Then in Vercel: **Add New → Project → Import** the repo. Framework is auto-detected as Next.js; no environment variables are needed for this build. Every push to `main` deploys; pull requests get preview URLs. The GitHub Actions workflow in `.github/workflows/ci.yml` runs typecheck + build on each push.
+Then add two GitHub repository secrets, `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (see `docs/CLOUDFLARE.md`). The workflow in `.github/workflows/ci.yml` typechecks and builds every push and deploys `main` to Cloudflare Workers. Local preview in the Workers runtime: `npm run preview` (use WSL on Windows).
 
 ## Repository map
 
