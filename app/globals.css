@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+html, body { height: 100%; }
+body { @apply bg-sheet text-ink antialiased; font-family: var(--font-sans); }
+h1, h2, h3 { letter-spacing: -0.015em; }
+*:focus-visible { outline: 2px solid #C8322B; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+.btn { @apply inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium border border-ink/20 bg-paper hover:bg-ink hover:text-paper transition-colors; }
+.btn-primary { @apply border-cloud bg-cloud text-paper hover:bg-ink hover:border-ink; }
+.btn-ghost { @apply border-transparent bg-transparent hover:bg-ink/5 hover:text-ink; }
+.field { @apply w-full rounded border border-rule bg-paper px-2 py-1.5 text-sm text-ink focus:border-ink; }
+.label { @apply block text-xs text-inkSoft mb-1; }
+.pill { @apply inline-block rounded-full px-2 py-0.5 text-xs font-medium; }
